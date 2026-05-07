@@ -4,6 +4,16 @@ This branch keeps the FOSTER code used to train and export the continual
 learning checkpoints that are later adapted by
 `Unlearn-Saliency/Classification` through the FOSTER adapter.
 
+## Repository Provenance
+
+This `submission-clean` branch is a trimmed paper-release snapshot of the
+existing FOSTER repository. It is included because the paper's ImageNet-1K CIL
+pipeline depends on FOSTER-side checkpoint and replay-buffer preparation, not
+because this release is claiming a new from-scratch FOSTER framework.
+
+Please preserve the original FOSTER license, citations, and repository
+attribution when reusing this branch.
+
 ## Hardware Note
 
 This submission-clean branch reflects the RTX 3090 environment used for the
