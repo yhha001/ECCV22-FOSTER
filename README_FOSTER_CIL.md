@@ -21,8 +21,9 @@ The unlearning code consumes FOSTER outputs such as:
 - compressed/single-network state dicts
 - replay buffer exports
 
-In the current CIL pipeline, the most important use case is the ImageNet
-FOSTER path that feeds `Classification` through `--cil_framework foster`.
+In the current `submission-clean` pipeline, the retained use case is the
+ImageNet-1K FOSTER path that feeds `Classification` through
+`--cil_framework foster`.
 
 ## Important Files
 
@@ -44,8 +45,6 @@ FOSTER path that feeds `Classification` through `--cil_framework foster`.
 - `utils/data.py`
   Dataset loading utilities.
 
-- `configs/foster-imagenet100.json`
-- `configs/foster-imagenet100-b0inc10.json`
 - `configs/foster-imagenet1000-b0inc100.json`
 - `configs/foster-imagenet1000-b0inc100-retrain-low-to-high-no-task0-6tasks50.json`
   Configurations used by the current paper-facing CIL path.
@@ -61,3 +60,6 @@ needed for the FOSTER training/export path:
 - `checkpoints/`
 - `logs/`
 - generated outputs not needed for the paper source release
+
+It also trims away CIFAR, ImageNet-100, and RMM-specific files so the release
+matches the retained ImageNet-1K path more closely.

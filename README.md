@@ -6,6 +6,10 @@ This branch is a source-focused snapshot for the CIL unlearning paper path.
 For the files that matter to the downstream `Unlearn-Saliency/Classification`
 integration, start with [README_FOSTER_CIL.md](README_FOSTER_CIL.md).
 
+This snapshot intentionally keeps the ImageNet-1K FOSTER export path and trims
+the CIFAR, ImageNet-100, and RMM-specific release extras from the upstream
+project.
+
 [![LICENSE](https://img.shields.io/badge/license-MIT-green?style=flat-square)](https://github.com/yaoyao-liu/class-incremental-learning/blob/master/LICENSE)[![Python](https://img.shields.io/badge/python-3.8-blue.svg?style=flat-square&logo=python&color=3776AB&logoColor=3776AB)](https://www.python.org/) [![PyTorch](https://img.shields.io/badge/pytorch-1.8-%237732a8?style=flat-square&logo=PyTorch&color=EE4C2C)](https://pytorch.org/)[![CIL](https://img.shields.io/badge/ClassIncrementalLearning-SOTA-success??style=for-the-badge&logo=appveyor)](https://paperswithcode.com/task/incremental-learning)
 
 The code repository for "Feature Boosting and Compression for Class-Incremental Learning
@@ -24,19 +28,9 @@ The code repository for "Feature Boosting and Compression for Class-Incremental 
 
 ***Gradient Boosting***. we propose a novel perspective from gradient boosting to analyze and achieve the goal of class-incremental learning. Gradient boosting methods use the additive model to gradually converge the ground-truth target model where the subsequent one fits the residuals between the target and the prior one.
 
-<p align="center">
-<img src='imgs/gradientboosting.png' width='900'>
-</p>
 ***Feature Boosting***.  First, we create a new module to fit the residual between targets and the output of the original model, following the principle of gradient boosting. With reasonable simplification and deduction,  the optimization objective is transformed into the minimization of KL divergence of the target and the output of the concatenated model. To alleviate the classification bias caused by imbalanced training, we proposed logits alignment to balance the training of old and new classes.
 
-<p align="center">
-<img src='imgs/boosting.png' width='900'>
-</p>
 ***Feature Compression***. In the second step, we aim to eliminate redundant parameters and meaningless dimensions caused by feature boosting. To achieve this goal, we propose an effective distillation strategy that can transfer knowledge from the boosting model to a single model with negligible performance loss, even if the data is limited when learning new tasks.
-
-<p align="center">
-<img src='imgs/compression.png' width='900'>
-</p>
 
 ## Results
 
@@ -54,13 +48,7 @@ The code repository for "Feature Boosting and Compression for Class-Incremental 
 | B50 25 steps | 64.95          | 63.83        |
 | B50 50 steps | 59.96          | -            |
 
-
-
-<img src='imgs/performance.png' width='900'>
-
 We visualize the grad-CAM before and after feature boosting. As shown in the figure~(top-left), the freeze CNN only focuses on the head of the birds, ignoring the rest of their bodies, while the new CNN learns that the whole body is important for classification, which is consistent with our claim. Similarly, the middle and right figures show that the new CNN also discovers some essential but ignored patterns of the mailbox, the dog, and the tennis.
-
-<img src='imgs/vis.png' width='900'>
 
 Please refer to our [[paper]](https://arxiv.org/abs/2204.04662)  for detailed results.
 
@@ -77,20 +65,16 @@ The following packages are required to run the scripts:
 
 ## Training scripts
 
-- Train CIFAR-100
+- Train ImageNet-1K FOSTER
 
   ```
-  python main.py --config=./configs/cifar/b0inc10.json
+  python main.py --config=./configs/foster-imagenet1000-b0inc100.json
   ```
-- Train ImageNet-100
+
+- Train ImageNet-1K retrain/export path
 
   ```
-  python main.py --config=./configs/foster-imagenet100.json
-  ```
-- Train FOSTER-RMM
-
-  ```
-  python main.py --config=./configs/foster-rmm.json
+  python main.py --config=./configs/foster-imagenet1000-b0inc100-retrain-low-to-high-no-task0-6tasks50.json
   ```
 
 
