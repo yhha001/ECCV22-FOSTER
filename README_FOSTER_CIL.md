@@ -4,6 +4,15 @@ This branch keeps the FOSTER code used to train and export the continual
 learning checkpoints that are later adapted by
 `Unlearn-Saliency/Classification` through the FOSTER adapter.
 
+## Hardware Note
+
+This submission-clean branch reflects the RTX 3090 environment used for the
+current FOSTER-side preparation and export workflow. The included configs and
+launch wrappers should be read as RTX-3090-oriented defaults.
+
+A separate branch or release can be prepared later for the NVIDIA B200-based
+data center if you want hardware-specific settings there.
+
 ## What Classification Uses From FOSTER
 
 The unlearning code consumes FOSTER outputs such as:
