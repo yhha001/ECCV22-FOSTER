@@ -58,6 +58,10 @@ Please refer to our [[paper]](https://arxiv.org/abs/2204.04662)  for detailed re
 
 The following packages are required to run the scripts:
 
+```bash
+pip install -r requirements.txt
+```
+
 - [torch](https://github.com/pytorch/pytorch)
 - [torchvision](https://github.com/pytorch/vision)
 - [tqdm](https://github.com/tqdm/tqdm)

@@ -18,10 +18,16 @@ attribution when reusing this branch.
 
 This submission-clean branch reflects the RTX 3090 environment used for the
 current FOSTER-side preparation and export workflow. The included configs and
-launch wrappers should be read as RTX-3090-oriented defaults.
+export assumptions should be read as RTX-3090-oriented defaults.
 
 A separate branch or release can be prepared later for the NVIDIA B200-based
 data center if you want hardware-specific settings there.
+
+## Dependencies
+
+For this trimmed branch, install:
+
+- `pip install -r requirements.txt`
 
 ## What Classification Uses From FOSTER
 
@@ -59,9 +65,6 @@ ImageNet-1K FOSTER path that feeds `Classification` through
 - `configs/foster-imagenet1000-b0inc100-retrain-low-to-high-no-task0-6tasks50.json`
   Configurations used by the current paper-facing CIL path.
 
-- `run_foster_*.sbatch`
-  Cluster launch wrappers used for the release-relevant runs.
-
 ## Branch Scope
 
 This branch removes large or machine-specific artifacts and keeps the source
@@ -73,3 +76,8 @@ needed for the FOSTER training/export path:
 
 It also trims away CIFAR, ImageNet-100, and RMM-specific files so the release
 matches the retained ImageNet-1K path more closely.
+
+It also intentionally omits the local sbatch launch wrappers from the
+submission release because they encoded machine-specific repository paths and
+cluster assumptions. Use `main.py --config ...` directly with the retained
+ImageNet-1K configs instead.
