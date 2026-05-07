@@ -1,5 +1,6 @@
 import copy
 import logging
+import os
 import numpy as np
 import torch
 from torch import index_select, nn
@@ -61,6 +62,41 @@ class BaseLearner(object):
             'model_state_dict': self._network.state_dict(),
         }
         torch.save(save_dict, '{}_{}.pkl'.format(filename, self._cur_task))
+
+    def export_replay_buffer(self, data_manager, save_path, include_logits=True):
+        if len(self._data_memory) == 0:
+            logging.info('Skip replay buffer export because exemplar memory is empty.')
+            return
+
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
+
+        payload = {
+            'examples': self._data_memory.copy(),
+            'labels': torch.as_tensor(self._targets_memory.copy(), dtype=torch.long),
+            'task': self._cur_task,
+            'known_classes': self._known_classes,
+            'total_classes': self._total_classes,
+            'topk': self.topk,
+            'examples_are_paths': bool(isinstance(self._data_memory[0], str)),
+        }
+
+        if include_logits:
+            memory_dataset = data_manager.get_dataset(
+                [], source='train', mode='test', appendent=(self._data_memory, self._targets_memory)
+            )
+            memory_loader = DataLoader(
+                memory_dataset, batch_size=batch_size, shuffle=False, num_workers=0
+            )
+            self._network.eval()
+            logits = []
+            with torch.no_grad():
+                for _, inputs, _ in memory_loader:
+                    outputs = self._network(inputs.to(self._device))['eval_logits']
+                    logits.append(outputs.cpu())
+            payload['logits'] = torch.cat(logits, dim=0)
+
+        torch.save(payload, save_path)
+        logging.info('Saved replay buffer to {}'.format(save_path))
 
     def after_task(self):
         pass

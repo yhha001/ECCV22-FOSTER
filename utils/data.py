@@ -1,8 +1,71 @@
 import numpy as np
+import os
 from torchvision import datasets, transforms
 from utils.toolkit import split_images_labels
 import torch
 from .autoaugment import CIFAR10Policy, ImageNetPolicy
+
+
+def _resolve_imagenet100_roots(data_path):
+    train_dir = os.path.join(data_path, "train")
+    val_dir = os.path.join(data_path, "val")
+    val_in_class_dirs = True
+
+    raw_train_dir = os.path.join(data_path, "ILSVRC2012_image_train")
+    raw_val_dir = os.path.join(data_path, "ILSVRC2012_image_val")
+    if os.path.isdir(raw_train_dir) and os.path.isdir(raw_val_dir):
+        train_dir = raw_train_dir
+        val_dir = raw_val_dir
+        val_in_class_dirs = False
+
+    return train_dir, val_dir, val_in_class_dirs
+
+
+def _load_imagenet100_subset(data_path, split_root):
+    train_split = os.path.join(split_root, "train.txt")
+    val_split = os.path.join(split_root, "eval.txt")
+    train_dir, val_dir, val_in_class_dirs = _resolve_imagenet100_roots(data_path)
+
+    train_data, train_targets, class_to_idx = _read_imagenet100_split(
+        train_dir, train_split
+    )
+    val_data, val_targets, _ = _read_imagenet100_split(
+        val_dir, val_split, class_to_idx, include_class_subdir=val_in_class_dirs
+    )
+
+    return train_data, train_targets, val_data, val_targets, class_to_idx
+
+
+def _read_imagenet100_split(base_dir, split_file, class_to_idx=None, include_class_subdir=True):
+    images, labels = [], []
+    current_class = None
+
+    if class_to_idx is None:
+        class_to_idx = {}
+
+    with open(split_file, "r") as f:
+        for raw_line in f:
+            line = raw_line.strip()
+            if not line:
+                continue
+
+            # Class marker lines do not contain a filename extension.
+            if "/" not in line:
+                current_class = line
+                if current_class not in class_to_idx:
+                    class_to_idx[current_class] = len(class_to_idx)
+                continue
+
+            if current_class is None:
+                raise ValueError(
+                    "Invalid ImageNet-100 split file: image path before class name."
+                )
+
+            relative_path = line if include_class_subdir else os.path.basename(line)
+            images.append(os.path.join(base_dir, relative_path))
+            labels.append(class_to_idx[current_class])
+
+    return np.array(images), np.array(labels), class_to_idx
 
 
 class Cutout(object):
@@ -39,6 +102,9 @@ class iData(object):
     test_trsf = []
     common_trsf = []
     class_order = None
+
+    def __init__(self, data_path=None):
+        self.data_path = data_path
 
 
 class iCIFAR10(iData):
@@ -117,10 +183,10 @@ class iImageNet1000(iData):
     class_order = np.arange(1000).tolist()
 
     def download_data(self):
-        data_path = ""
+        data_path = self.data_path or os.environ.get("FOSTER_IMAGENET1000_ROOT", "")
         assert data_path, "please specify the data path "
-        train_dir = data_path+'/train/'
-        test_dir = data_path+'/val/'
+        train_dir = os.path.join(data_path, "train")
+        test_dir = os.path.join(data_path, "val")
 
         train_dset = datasets.ImageFolder(train_dir)
         test_dset = datasets.ImageFolder(test_dir)
@@ -148,17 +214,19 @@ class iImageNet100(iData):
                              0.229, 0.224, 0.225]),
     ]
 
-    class_order = np.arange(1000).tolist()
+    class_order = np.arange(100).tolist()
 
     def download_data(self):
-
-        data_path = ""
+        data_path = self.data_path or os.environ.get("FOSTER_IMAGENET100_ROOT", "")
         assert data_path, "please specify the data path "
-        train_dir = '/train/'
-        test_dir = '/val/'
-        train_dset = datasets.ImageFolder(train_dir)
-        test_dset = datasets.ImageFolder(test_dir)
-
-        self.train_data, self.train_targets = split_images_labels(
-            train_dset.imgs)
-        self.test_data, self.test_targets = split_images_labels(test_dset.imgs)
+        split_root = os.path.normpath(
+            os.path.join(os.path.dirname(__file__), "..", "imagenet-sub")
+        )
+        (
+            self.train_data,
+            self.train_targets,
+            self.test_data,
+            self.test_targets,
+            class_to_idx,
+        ) = _load_imagenet100_subset(data_path, split_root)
+        self.class_order = np.arange(len(class_to_idx)).tolist()

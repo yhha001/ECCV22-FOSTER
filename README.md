@@ -1,5 +1,11 @@
 # FOSTER: Feature Boosting and Compression for Class-Incremental Learning
 
+## Submission-Clean Branch
+
+This branch is a source-focused snapshot for the CIL unlearning paper path.
+For the files that matter to the downstream `Unlearn-Saliency/Classification`
+integration, start with [README_FOSTER_CIL.md](README_FOSTER_CIL.md).
+
 [![LICENSE](https://img.shields.io/badge/license-MIT-green?style=flat-square)](https://github.com/yaoyao-liu/class-incremental-learning/blob/master/LICENSE)[![Python](https://img.shields.io/badge/python-3.8-blue.svg?style=flat-square&logo=python&color=3776AB&logoColor=3776AB)](https://www.python.org/) [![PyTorch](https://img.shields.io/badge/pytorch-1.8-%237732a8?style=flat-square&logo=PyTorch&color=EE4C2C)](https://pytorch.org/)[![CIL](https://img.shields.io/badge/ClassIncrementalLearning-SOTA-success??style=for-the-badge&logo=appveyor)](https://paperswithcode.com/task/incremental-learning)
 
 The code repository for "Feature Boosting and Compression for Class-Incremental Learning
